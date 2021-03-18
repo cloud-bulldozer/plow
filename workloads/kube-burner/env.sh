@@ -22,3 +22,16 @@ export LOG_LEVEL=${LOG_LEVEL:-info}
 export REMOTE_CONFIG=""
 export REMOTE_METRIC_PROFILE=""
 export REMOTE_ALERT_PROFILE=""
+
+export APP_SUBNAME=""
+export APP=""
+
+# Concurrent Build Specific
+export BUILD_IMAGE_STREAM=""
+export SOURCE_STRAT_ENV=""
+export SOURCE_STRAT_FROM=""
+export POST_COMMIT_SCRIPT=""
+export SOURCE_STRAT_FROM_VERSION=""
+
+export BUILD_IMAGE=""
+export GIT_URL=""

@@ -3,10 +3,9 @@
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: kube-burner-${WORKLOAD}-${UUID}
+  name: kube-burner-${APP_SUBNAME}${WORKLOAD}-${UUID}
   namespace: my-ripsaw
 spec:
-  uuid: ${UUID}
   # Metadata information
   elasticsearch:
     url: ${ES_SERVER}
@@ -58,6 +57,17 @@ spec:
       wait_for: ${WAIT_FOR}
       # Prometheus step size
       step: ${STEP_SIZE}
+      app: ${APP}
+      source_strat_env: ${SOURCE_STRAT_ENV}
+      source_strat_from: ${SOURCE_STRAT_FROM}
+      source_strat_from_version: ${SOURCE_STRAT_FROM_VERSION}
+      # Script to run after build
+      post_commit_script: ${POST_COMMIT_SCRIPT}
+      # Build Image name
+      build_image_stream: ${BUILD_IMAGE_STREAM}
+      # Git url for application
+      git_url: ${GIT_URL}
+      build_image: ${BUILD_IMAGE}
       # kube-burner metrics profile
       metrics_profile: ${METRICS_PROFILE}
       # Remote configuration file
