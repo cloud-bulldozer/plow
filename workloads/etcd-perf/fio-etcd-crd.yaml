@@ -1,0 +1,35 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: etcd-fio
+  namespace: my-ripsaw
+spec:
+  elasticsearch:
+    url: ${ES_SERVER}
+  clustername: ${CLOUD_NAME}
+  test_user: ${TEST_USER}
+  metadata:
+    collection: ${METADATA_COLLECTION}
+    serviceaccount: backpack-view
+    privileged: true
+  hostpath: /var/lib/etcd/fio-etcd
+  workload:
+    name: fio_distributed
+    args:
+      tolerations: ${TOLERATIONS}
+      nodeselector: ${NODE_SELECTOR}
+      iodepth: 1
+      log_sample_rate: 1000
+      samples: ${SAMPLES}
+      servers: 1
+      jobs:
+      - write
+      bs:
+      - 2300
+      numjobs:
+      - 1
+      filesize: ${FILE_SIZE}
+  global_overrides:
+    - fdatasync=1
+    - ioengine=sync
+    - direct=0
