@@ -122,16 +122,24 @@ export_defaults() {
   fi
 }
 
+safe_create(){
+  log "Trying to safely create resource at $1"
+  while [[ ! $(oc apply -f $1) ]]; do
+    log "Cloning ${operator_branch} ${operator_repo} to  /tmp/benchmark-operator again, as that directory was not found."
+    git clone --single-branch --branch ${operator_branch} ${operator_repo} /tmp/benchmark-operator --depth 1
+  done
+}
+
 deploy_operator() {
   log "Starting test for cloud: $cloud_name"
   log "Removing my-ripsaw namespace, if it already exists"
   oc delete namespace my-ripsaw --ignore-not-found
   log "Deploying benchmark-operator"
-  oc apply -f /tmp/benchmark-operator/resources/namespace.yaml
-  oc apply -f /tmp/benchmark-operator/deploy
-  oc apply -f /tmp/benchmark-operator/resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
-  oc apply -f /tmp/benchmark-operator/resources/operator.yaml
-  oc apply -f /tmp/benchmark-operator/resources/backpack_role.yaml
+  safe_create /tmp/benchmark-operator/resources/namespace.yaml
+  safe_create /tmp/benchmark-operator/deploy
+  safe_create /tmp/benchmark-operator/resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
+  safe_create /tmp/benchmark-operator/resources/operator.yaml
+  safe_create /tmp/benchmark-operator/resources/backpack_role.yaml
   log "Waiting for benchmark-operator to be available"
   oc wait --for=condition=available -n my-ripsaw deployment/benchmark-operator --timeout=280s
   oc adm policy -n my-ripsaw add-scc-to-user privileged -z benchmark-operator
@@ -154,6 +162,11 @@ if [ ! -z "$client_pod" ]; then
     log "Encountered CRITICAL condition more than 3 times in uperf-client logs"
     log "Log dump of uperf-client pod"
     oc logs $client_pod -n my-ripsaw
+    log "Following Server pods were present"
+    server_pod=$(oc get pods -n my-ripsaw --no-headers | awk '{print $1}' | grep uperf-server | awk 'NR==1{print $1}')
+    oc logs $server_pod -n my-ripsaw
+    log "Following services were also present before calling delete_benchmark due to failure"
+    oc describe svc -n my-ripsaw
     delete_benchmark
     exit 1
   fi
