@@ -8,6 +8,7 @@ The purpose of these scripts is to run a kube-burner workload steered by ripsaw.
 - **`max-namespaces`**
 - **`max-services`**
 - **`pod-density`**
+- **`concurrent-builds`**
 
 ## Environment variables
 
@@ -103,3 +104,14 @@ Apart from the pre-defined workloads and metric profiles available in benchmark-
 
 > Note: These can be used separately and/or combined with the kube-burner workloads available in the benchmark-operator.
 
+
+### Concurrent Builds
+
+Creates a buildconfig and imagestream for a set application. **This will create as many namespaces with these objects as the configured job_iterations**.
+After the initial creation of the objects the script will concurrently build different numbers of the builds and output the average times. 
+To edit any of the build information edit the bash script correlating with the application of interest under the builds folder
+
+
+## Configuration file
+
+An [env.sh](env.sh) file is provided with all available configuration parameters.
