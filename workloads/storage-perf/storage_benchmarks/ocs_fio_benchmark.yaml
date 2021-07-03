@@ -1,0 +1,70 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: fio-benchmark
+  namespace: my-ripsaw
+spec:
+  elasticsearch:
+    server: $_es
+    port: $_es_port
+    parallel: true
+  prometheus:
+    es_server: $_es
+    es_port: $_es_port
+    prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
+    prom_token: ${prom_access_token} 
+    es_parallel: true # enable parallel uploads to elasticsearch
+  clustername: $cloud_name
+  test_user: ${cloud_name}-ci
+  workload:
+    name: "fio_distributed"
+    args:
+      prefill: true
+      samples: 4
+      servers: 30
+      pin_server: ''
+      jobs:
+        - write
+        - randwrite
+        - read
+        - randread
+      bs:
+        - 8KiB
+        - 16KiB
+        - 64KiB
+        - 256KiB
+        - 1024KiB
+        - 4096KiB
+      numjobs:
+        - 1
+      iodepth: 16
+      runtime: 300  
+      ramp_time: 0
+      filesize: 32GiB
+      log_sample_rate: 30000
+      storageclass: ocs-storagecluster-ceph-rbd
+      storagesize: 36Gi
+#######################################
+#  EXPERT AREA - MODIFY WITH CAUTION  #
+#######################################
+  job_params:
+    - jobname_match: write
+      params:
+        - time_based=1
+        - runtime={{ workload_args.runtime }}
+        - ramp_time={{ workload_args.ramp_time }}
+    - jobname_match: read
+      params:
+        - time_based=1
+        - runtime={{ workload_args.runtime }}
+        - ramp_time={{ workload_args.ramp_time }}
+    - jobname_match: randwrite
+      params:
+        - time_based=1
+        - runtime={{ workload_args.runtime }}
+        - ramp_time={{ workload_args.ramp_time }}
+    - jobname_match: randread
+      params:
+        - time_based=1
+        - runtime={{ workload_args.runtime }}
+        - ramp_time={{ workload_args.ramp_time }}
