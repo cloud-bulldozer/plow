@@ -223,7 +223,8 @@ run_benchmark_comparison() {
 }
 
 generate_csv() {
-  python3 csv_gen.py --files $(echo "${pairs_array[@]}") --latency_tolerance=$latency_tolerance --throughput_tolerance=$throughput_tolerance  
+  filename=$(echo "Uperf-$WORKLOAD-Test-Results-$(date +'%d-%m-%Y-%H.%M.%S')")
+  python3 csv_gen.py --sheetname=$filename --files $(echo "${pairs_array[@]}") --latency_tolerance=$latency_tolerance --throughput_tolerance=$throughput_tolerance
 }
 
 init_cleanup() {

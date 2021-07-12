@@ -137,7 +137,7 @@ def generate_csv(yaml_files, result_csv_file="results.csv", extract_threads=1):
     data = read_yaml(yaml_files)
     tables = create_table_mappings(data, uuid_map)
     write_to_csv(tables, uuid_titles, uid, extract_threads, result_csv_file)
-    print(f"\n            Test Completed!\n            Results file generated -> {params.sheetname}.csv")
+    print(f"\n            Test Completed!\n            Results file generated -> {params.sheetname[0]}.csv")
 
 
 def push_to_gsheet(csv_file_name, google_svc_acc_key, email_id):
@@ -151,7 +151,7 @@ def push_to_gsheet(csv_file_name, google_svc_acc_key, email_id):
     credentials = ServiceAccountCredentials.from_json_keyfile_name(google_svc_acc_key, scope)
     gc = gspread.authorize(credentials)
 
-    sh = gc.create(params.sheetname)
+    sh = gc.create(params.sheetname[0])
     sh.share(email_id, perm_type="user", role="writer")
     spreadsheet_id = sh.id
     spreadsheet_url = f"https://docs.google.com/spreadsheets/d/{sh.id}"
@@ -175,7 +175,7 @@ parser.add_argument(
     nargs=1,
     required=False,
     dest="sheetname",
-    default=f"Uperf-Test-Results-{str(timestamp)}",
+    default=[f"Uperf-Test-Results-{str(timestamp)}"],
 )
 parser.add_argument(
     "-f", "--files", help="YAML files to scrape output from", nargs="+", required=False, dest="yaml_files",
@@ -199,8 +199,8 @@ parser.add_argument(
     default="10",
 )
 params = parser.parse_args()
-generate_csv(params.yaml_files, f"{params.sheetname}.csv")
+generate_csv(params.yaml_files, f"{params.sheetname[0]}.csv")
 if "EMAIL_ID_FOR_RESULTS_SHEET" in os.environ and "GSHEET_KEY_LOCATION" in os.environ:
     push_to_gsheet(
-        f"{params.sheetname}.csv", os.environ["GSHEET_KEY_LOCATION"], os.environ["EMAIL_ID_FOR_RESULTS_SHEET"],
+        f"{params.sheetname[0]}.csv", os.environ["GSHEET_KEY_LOCATION"], os.environ["EMAIL_ID_FOR_RESULTS_SHEET"],
     )
