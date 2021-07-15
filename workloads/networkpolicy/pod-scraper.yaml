@@ -1,0 +1,30 @@
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: pod-scraper
+  namespace: my-ripsaw
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 3600
+  template:
+    metadata:
+      labels:
+        app: pod-scraper
+    spec:
+      restartPolicy: Never
+      serviceAccountName: kube-burner
+      containers:
+      - name: pod-scraper
+        image: quay.io/msheth/pod-scraper:tar
+        imagePullPolicy: Always
+        command: ["/bin/sh", "-c"]
+        args:
+        - >
+          while [ $? == 0 ];
+          do ! pod-scraper
+          -port "8080"
+          -ns-label ${NS_LABEL} | grep Scraped;
+          if [ $? != 0 ] ; then exit 1; fi
+          done
+

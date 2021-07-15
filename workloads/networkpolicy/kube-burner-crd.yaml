@@ -1,0 +1,72 @@
+---
+
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: kube-burner-${WORKLOAD}-${UUID}
+  namespace: my-ripsaw
+spec:
+  uuid: ${UUID}
+  # Metadata information
+  elasticsearch:
+    url: ${ES_SERVER}
+  metadata:
+    collection: ${METADATA_COLLECTION}
+    privileged: true
+  cerberus_url: "${CERBERUS_URL}"
+  prometheus:
+    # Elastic search instance with full URL format. http://elastic.apps.org:9200
+    es_url: ${ES_SERVER}
+    # Prometheus bearer token
+    prom_token: ${PROM_TOKEN}
+    # Prometheus URL with full URL format. https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
+    prom_url: ${PROM_URL}
+  workload:
+    name: kube-burner
+    args:
+      # Workload name
+      workload: ${WORKLOAD}
+      # Kube-burner Job timeout
+      job_timeout: ${JOB_TIMEOUT}
+      # ES index name
+      default_index: ${ES_INDEX}
+      # Number of job iterations
+      job_iterations: ${TEST_JOB_ITERATIONS}
+      # Pin kube-burner to a node using the value of the label kubernetes.io/hostname
+      pin_server: ${WORKLOAD_NODE}
+      # Wait for pods to be runnig before finishing kube-burner workload
+      wait_when_finished: ${WAIT_WHEN_FINISHED}
+      # Wait for all pods to be running before moving forward to the next job iteration
+      pod_wait: false
+      # Use a custom kube-burner image
+      image: quay.io/cloud-bulldozer/kube-burner:latest
+      # Queries per second
+      qps: ${QPS}
+      # Max number of burst queries to perform
+      burst: ${BURST}
+      # Log level. Allowed, info and debug
+      log_level: ${LOG_LEVEL}
+      # Delete old namespaces for the selected workload before starting benchmark
+      cleanup: ${CLEANUP}
+      # Verify object creation
+      verify_objects: true
+      # Exit w/o indexing if a verify error happened
+      error_on_verify: true
+      # kube-burner pod tolerations
+      tolerations: ${TOLERATIONS}
+      # Wait for only certain object types to be ready
+      wait_for: ${WAIT_FOR}
+      # Prometheus step size
+      step: ${STEP_SIZE}
+      # kube-burner metrics profile
+      metrics_profile: ${METRICS_PROFILE}
+      # Remote configuration file
+      remote_config: ${REMOTE_CONFIG}
+      # Remote metric profile
+      remote_metrics_profile: ${REMOTE_METRIC_PROFILE}
+      # Remote alert profile
+      remote_alert_profile: ${REMOTE_ALERT_PROFILE}
+      # Pod nodeSelector
+      node_selector:
+        key: ${NODE_SELECTOR_KEY}
+        value: ${NODE_SELECTOR_VALUE}

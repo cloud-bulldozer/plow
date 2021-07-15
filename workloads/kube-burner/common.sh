@@ -22,7 +22,7 @@ deploy_operator() {
   oc delete namespace my-ripsaw --ignore-not-found
   log "Cloning benchmark-operator from branch ${operator_branch} of ${operator_repo}"
   rm -rf benchmark-operator
-  git clone --single-branch --branch ${OPERATOR_BRANCH} ${OPERATOR_REPO} --depth 1
+  git clone --single-branch --branch ${OPERATOR_BRANCH} ${OPERATOR_REPO}  benchmark-operator --depth 1
   log "Deploying benchmark-operator"
   oc apply -f benchmark-operator/resources/namespace.yaml
   oc apply -f benchmark-operator/deploy

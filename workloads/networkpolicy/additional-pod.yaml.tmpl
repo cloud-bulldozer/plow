@@ -1,0 +1,8 @@
+jobs:
+    - namespacedIterations: true
+      name: additional-pod
+      namespace: np-${UUID}
+      jobIterations: ${TEST_JOB_ITERATIONS}
+      objects:
+          - objectTemplate: templates/pod.yaml
+            replicas: 1
