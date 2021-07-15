@@ -147,7 +147,7 @@ gen_mb_config(){
     local port=443
   fi
   (echo "["
-  while read host; do
+  oc get route -n http-scale-${termination} --no-headers | awk '{print $2}'| while read host; do
     if [[ ${first} == "true" ]]; then
         echo "{"
         first=false
@@ -167,12 +167,13 @@ gen_mb_config(){
       "keep-alive-requests": '${keepalive_requests}',
       "clients": '${clients}'
     }'
-  done <<< $(oc get route -n http-scale-${termination} --no-headers | awk '{print $2}')
+  done
   echo "]") | python -m json.tool > http-scale-${termination}.json
 }
 
 gen_mb_mix_config(){
   log "Generating config for termination ${termination} with ${clients} clients ${keepalive_requests} keep alive requests and path ${URL_PATH}"
+  local first_termination=true
   local first=true
   (echo "["
   for mix_termination in http edge passthrough reencrypt; do
@@ -183,7 +184,12 @@ gen_mb_mix_config(){
       local scheme=https
       local port=443
     fi
-    while read host; do
+    if [[ ${first_termination} == "true" ]]; then
+      first_termination=false
+    else
+      echo ","
+    fi
+    oc get route -n http-scale-${mix_termination} --no-headers | awk '{print $2}'| while read host; do
       if [[ ${first} == "true" ]]; then
           echo "{"
           first=false
@@ -203,7 +209,7 @@ gen_mb_mix_config(){
         "keep-alive-requests": '${keepalive_requests}',
         "clients": '${clients}'
       }'
-    done <<< $(oc get route -n http-scale-${mix_termination} --no-headers | awk '{print $2}')
+    done
   done
   echo "]") | python -m json.tool > http-scale-mix.json
 }
